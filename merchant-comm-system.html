@@ -1,0 +1,1336 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>商户沟通管理系统</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F5F4F0;
+  --surface: #FFFFFF;
+  --surface2: #F0EEE8;
+  --border: #E2DED5;
+  --text: #1A1916;
+  --text2: #6B6860;
+  --text3: #A09E98;
+  --accent: #1D4ED8;
+  --accent-bg: #EEF2FF;
+  --accent-border: #C7D2FE;
+  --success: #15803D;
+  --success-bg: #F0FDF4;
+  --warning: #B45309;
+  --warning-bg: #FFFBEB;
+  --danger: #B91C1C;
+  --danger-bg: #FEF2F2;
+  --radius: 10px;
+  --radius-sm: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.10);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans SC', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Layout */
+.app { display: flex; height: 100vh; overflow: hidden; }
+
+.sidebar {
+  width: 220px;
+  background: var(--text);
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+.sidebar-logo {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+.sidebar-logo h1 {
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.3;
+}
+.sidebar-logo p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  margin-top: 2px;
+}
+
+.sidebar-nav { flex: 1; padding: 12px 8px; }
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  color: rgba(255,255,255,0.6);
+  font-size: 13px;
+  font-weight: 500;
+  transition: all .15s;
+  margin-bottom: 2px;
+}
+.nav-item:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.nav-item.active { background: rgba(255,255,255,0.12); color: #fff; }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+.main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0 24px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.topbar-title { font-size: 15px; font-weight: 700; }
+.topbar-actions { display: flex; gap: 8px; }
+
+.content { flex: 1; overflow-y: auto; padding: 24px; }
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all .15s;
+  font-family: inherit;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: #1e40af; }
+.btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+.btn-secondary:hover { background: var(--surface2); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid transparent; padding: 6px 10px; }
+.btn-ghost:hover { background: var(--surface2); color: var(--text); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-danger { background: var(--danger-bg); color: var(--danger); border: 1px solid #FECACA; }
+
+/* Cards */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.card-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.card-title { font-size: 14px; font-weight: 700; }
+.card-body { padding: 20px; }
+
+/* Form */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+.form-full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .04em; }
+.form-input, .form-select, .form-textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  color: var(--text);
+  background: var(--surface);
+  transition: border-color .15s, box-shadow .15s;
+  outline: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(29,78,216,0.08);
+}
+.form-textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+.form-select { cursor: pointer; }
+.form-hint { font-size: 11px; color: var(--text3); }
+
+/* Badge */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.badge-urgent { background: var(--danger-bg); color: var(--danger); }
+.badge-soon { background: var(--warning-bg); color: var(--warning); }
+.badge-normal { background: var(--success-bg); color: var(--success); }
+.badge-done { background: var(--surface2); color: var(--text3); }
+.badge-blue { background: var(--accent-bg); color: var(--accent); }
+
+/* Stats row */
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+.stat-num { font-size: 26px; font-weight: 700; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.stat-label { font-size: 12px; color: var(--text2); font-weight: 500; }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+thead th {
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text2);
+  text-transform: uppercase;
+  letter-spacing: .05em;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface2);
+}
+tbody tr { border-bottom: 1px solid var(--border); transition: background .1s; }
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: var(--bg); }
+tbody td { padding: 12px 14px; font-size: 13px; vertical-align: middle; }
+
+/* Modal */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: var(--shadow-md);
+  width: 100%;
+  max-width: 680px;
+  max-height: 90vh;
+  overflow-y: auto;
+  transform: translateY(10px);
+  transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  z-index: 1;
+}
+.modal-title { font-size: 16px; font-weight: 700; }
+.modal-body { padding: 24px; }
+.modal-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  background: var(--surface2);
+  border-radius: 0 0 14px 14px;
+}
+
+/* AI box */
+.ai-box {
+  background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 100%);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-top: 16px;
+}
+.ai-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.ai-content {
+  font-size: 13px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  font-family: 'Noto Sans SC', sans-serif;
+}
+.ai-loading { color: var(--text3); font-style: italic; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+/* Timeline */
+.timeline { display: flex; flex-direction: column; gap: 0; }
+.timeline-item { display: flex; gap: 16px; padding-bottom: 20px; position: relative; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-left { display: flex; flex-direction: column; align-items: center; }
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+.timeline-dot.done { background: var(--text3); }
+.timeline-line {
+  width: 1px;
+  flex: 1;
+  background: var(--border);
+  margin: 4px 0 0;
+}
+.timeline-item:last-child .timeline-line { display: none; }
+.timeline-content {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  box-shadow: var(--shadow);
+}
+.timeline-meta { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+.timeline-date { font-size: 12px; color: var(--text2); font-weight: 600; }
+.timeline-field { margin-bottom: 8px; }
+.timeline-field:last-child { margin-bottom: 0; }
+.timeline-field-label { font-size: 11px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.timeline-field-value { font-size: 13px; color: var(--text); margin-top: 2px; }
+
+/* Merchant grid */
+.merchant-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px; }
+.merchant-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  cursor: pointer;
+  transition: all .15s;
+  box-shadow: var(--shadow);
+}
+.merchant-card:hover { border-color: var(--accent); box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.merchant-card-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.merchant-card-meta { font-size: 12px; color: var(--text2); margin-bottom: 10px; }
+.merchant-card-footer { display: flex; align-items: center; justify-content: space-between; }
+
+/* Follow-up list */
+.followup-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border);
+}
+.followup-item:last-child { border-bottom: none; }
+.followup-date-badge {
+  min-width: 54px;
+  text-align: center;
+  padding: 6px 0;
+  border-radius: var(--radius-sm);
+  font-family: 'JetBrains Mono', monospace;
+}
+.followup-date-badge .month { font-size: 10px; font-weight: 600; text-transform: uppercase; }
+.followup-date-badge .day { font-size: 20px; font-weight: 700; line-height: 1.1; }
+
+/* Search */
+.search-row { display: flex; gap: 10px; margin-bottom: 16px; align-items: center; }
+.search-input {
+  flex: 1;
+  padding: 8px 12px 8px 36px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-family: inherit;
+  background: var(--surface);
+  outline: none;
+  position: relative;
+}
+.search-wrap { position: relative; flex: 1; }
+.search-wrap::before {
+  content: '🔍';
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 12px;
+  pointer-events: none;
+}
+.search-input:focus { border-color: var(--accent); }
+
+/* Empty state */
+.empty { text-align: center; padding: 48px 24px; color: var(--text3); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-text { font-size: 14px; margin-bottom: 4px; color: var(--text2); }
+.empty-sub { font-size: 12px; }
+
+/* Notification dot */
+.notif-dot {
+  display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--danger);
+  margin-left: 6px;
+  vertical-align: middle;
+}
+
+/* Tabs inside pages */
+.page-tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid var(--border); }
+.page-tab {
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all .15s;
+}
+.page-tab:hover { color: var(--text); }
+.page-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+.section-title { font-size: 13px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: .05em; margin-bottom: 10px; }
+
+/* Export menu */
+.export-menu { position: relative; display: inline-block; }
+.export-dropdown {
+  position: absolute;
+  right: 0; top: calc(100% + 4px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+  min-width: 160px;
+  z-index: 50;
+  display: none;
+  overflow: hidden;
+}
+.export-menu.open .export-dropdown { display: block; }
+.export-option {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background .1s;
+}
+.export-option:hover { background: var(--surface2); }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- Sidebar -->
+<div class="sidebar">
+  <div class="sidebar-logo">
+    <h1>商户沟通<br>管理系统</h1>
+    <p>Mall Operations</p>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-item active" data-page="dashboard" onclick="navigate('dashboard')">
+      <span class="nav-icon">📊</span> 概览仪表盘
+    </div>
+    <div class="nav-item" data-page="record" onclick="navigate('record')">
+      <span class="nav-icon">✏️</span> 录入沟通记录
+    </div>
+    <div class="nav-item" data-page="merchants" onclick="navigate('merchants')">
+      <span class="nav-icon">🏪</span> 商户列表
+    </div>
+    <div class="nav-item" data-page="followup" onclick="navigate('followup')">
+      <span class="nav-icon">🔔</span> 待跟进提醒
+      <span class="notif-dot" id="notif-dot" style="display:none"></span>
+    </div>
+    <div class="nav-item" data-page="export" onclick="navigate('export')">
+      <span class="nav-icon">📤</span> 导出数据
+    </div>
+  </nav>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">概览仪表盘</div>
+    <div class="topbar-actions" id="topbar-actions"></div>
+  </div>
+  <div class="content" id="content"></div>
+</div>
+
+</div>
+
+<!-- New Record Modal -->
+<div class="modal-overlay" id="modal-record">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-record-title">新建沟通记录</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-record')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid" id="record-form">
+        <div class="form-group">
+          <label class="form-label">沟通日期 *</label>
+          <input type="date" class="form-input" id="f-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">商户名称 *</label>
+          <input type="text" class="form-input" id="f-merchant" placeholder="例：星巴克咖啡 B1-01" list="merchant-list">
+          <datalist id="merchant-list"></datalist>
+        </div>
+        <div class="form-group">
+          <label class="form-label">联系人</label>
+          <input type="text" class="form-input" id="f-contact" placeholder="姓名 / 职务">
+        </div>
+        <div class="form-group">
+          <label class="form-label">沟通方式</label>
+          <select class="form-select" id="f-method">
+            <option>现场拜访</option>
+            <option>电话沟通</option>
+            <option>微信沟通</option>
+            <option>正式会议</option>
+            <option>邮件往来</option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">沟通事项 *</label>
+          <textarea class="form-textarea" id="f-topic" placeholder="本次沟通的主要内容…" style="min-height:90px"></textarea>
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">沟通结果</label>
+          <textarea class="form-textarea" id="f-result" placeholder="达成共识、待定事项、商户态度…"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">下次跟进事项</label>
+          <input type="text" class="form-input" id="f-nexttask" placeholder="需要跟进的具体事项">
+        </div>
+        <div class="form-group">
+          <label class="form-label">跟进日期</label>
+          <input type="date" class="form-input" id="f-nextdate">
+        </div>
+        <div class="form-group form-full">
+          <label class="form-label">标签</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap" id="tag-selector">
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="续租谈判"> 续租谈判</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="投诉处理"> 投诉处理</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="活动合作"> 活动合作</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="租金调整"> 租金调整</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="装修装饰"> 装修装饰</label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="运营巡查"> 运营巡查</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-box" id="ai-box" style="display:none">
+        <div class="ai-label">✨ AI 沟通纪要</div>
+        <div class="ai-content" id="ai-content"></div>
+        <div style="display:flex;gap:8px;margin-top:12px" id="ai-actions" style="display:none">
+          <button class="btn btn-secondary btn-sm" onclick="editMinutes()">✏️ 编辑纪要</button>
+          <button class="btn btn-primary btn-sm" onclick="saveWithMinutes()">保存含纪要的记录</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-record')">取消</button>
+      <button class="btn btn-secondary" onclick="generateMinutes()">✨ 生成AI沟通纪要</button>
+      <button class="btn btn-primary" onclick="saveRecord()">保存记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- Merchant Detail Modal -->
+<div class="modal-overlay" id="modal-merchant">
+  <div class="modal" style="max-width:800px">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-merchant-title"></div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-merchant')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-merchant-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-merchant')">关闭</button>
+      <button class="btn btn-primary" onclick="newRecordForMerchant()">+ 新建沟通记录</button>
+    </div>
+  </div>
+</div>
+
+<!-- Minutes Detail Modal -->
+<div class="modal-overlay" id="modal-minutes">
+  <div class="modal" style="max-width:640px">
+    <div class="modal-header">
+      <div class="modal-title">正式沟通纪要</div>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-minutes')">✕</button>
+    </div>
+    <div class="modal-body" id="modal-minutes-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-minutes')">关闭</button>
+      <button class="btn btn-primary" onclick="printMinutes()">🖨️ 打印 / 导出PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── Data Store ───────────────────────────────────────────────
+let DB = JSON.parse(localStorage.getItem('comm_db') || 'null') || {
+  records: [
+    { id: 1, date:'2025-05-10', merchant:'星巴克咖啡 B1-01', contact:'李经理', method:'现场拜访', topic:'讨论夏季促销活动合作，希望联合商场做买一送一活动，需要商场配合宣传', result:'双方初步达成意向，需要李经理提交活动方案后再确认细节', nexttask:'收到活动方案并审核', nextdate:'2025-05-20', tags:['活动合作'], minutes:'', done:false, createdAt: Date.now()-5*86400000 },
+    { id: 2, date:'2025-05-12', merchant:'优衣库 1F-03', contact:'王店长', method:'现场拜访', topic:'反映隔壁施工噪音影响营业，要求商场协调施工时间，避免营业高峰期施工', result:'已记录投诉，将协调施工方调整施工时间到闭店后进行', nexttask:'确认施工方已调整方案并反馈给商户', nextdate:'2025-05-16', tags:['投诉处理'], minutes:'', done:false, createdAt: Date.now()-3*86400000 },
+    { id: 3, date:'2025-05-08', merchant:'屈臣氏 1F-12', contact:'张总监', method:'正式会议', topic:'三年租约到期续租谈判，商户希望维持原租金，商场需上调8%', result:'双方存在分歧，张总监表示需内部讨论后回复，预计一周内给出答复', nexttask:'等待屈臣氏回复续租意向', nextdate:'2025-05-15', tags:['续租谈判'], minutes:'正式沟通纪要\n\n日期：2025年5月8日\n参与方：屈臣氏1F-12（张总监） / 商场运营部\n\n一、沟通要点\n1. 屈臣氏现有租约将于2025年8月31日到期\n2. 商场提出租金上调8%的续租方案\n3. 屈臣氏方面希望维持现有租金水平，理由是近两年销售额有所下滑\n\n二、达成事项\n- 商场提供正式续租报价函\n- 屈臣氏一周内给出书面回复\n\n三、后续安排\n- 跟进日期：2025年5月15日\n- 负责人：运营部', done:false, createdAt: Date.now()-14*86400000 },
+    { id: 4, date:'2025-05-05', merchant:'肯德基 B1-05', contact:'赵经理', method:'电话沟通', topic:'询问外摆区域使用申请进度', result:'已告知正在审批中，预计下周有结果', nexttask:'', nextdate:'', tags:['运营巡查'], minutes:'', done:true, createdAt: Date.now()-17*86400000 },
+  ],
+  nextId: 5
+};
+
+function saveDB() {
+  localStorage.setItem('comm_db', JSON.stringify(DB));
+}
+
+// ─── Utilities ────────────────────────────────────────────────
+function today() { return new Date().toISOString().slice(0,10); }
+function fmtDate(d) {
+  if (!d) return '';
+  const dt = new Date(d + 'T00:00:00');
+  return `${dt.getFullYear()}年${dt.getMonth()+1}月${dt.getDate()}日`;
+}
+function daysUntil(dateStr) {
+  if (!dateStr) return null;
+  const diff = new Date(dateStr+'T00:00:00') - new Date(today()+'T00:00:00');
+  return Math.round(diff / 86400000);
+}
+function urgencyBadge(dateStr, done) {
+  if (done) return '<span class="badge badge-done">已完成</span>';
+  if (!dateStr) return '';
+  const d = daysUntil(dateStr);
+  if (d < 0) return '<span class="badge badge-urgent">⚠️ 已逾期</span>';
+  if (d === 0) return '<span class="badge badge-urgent">🔴 今日到期</span>';
+  if (d <= 3) return `<span class="badge badge-soon">🟡 ${d}天后</span>`;
+  return `<span class="badge badge-normal">🟢 ${d}天后</span>`;
+}
+function getMerchants() {
+  const s = new Set(DB.records.map(r => r.merchant));
+  return [...s].sort();
+}
+function getRecordsByMerchant(name) {
+  return DB.records.filter(r => r.merchant === name).sort((a,b) => b.date.localeCompare(a.date));
+}
+function urgentCount() {
+  return DB.records.filter(r => !r.done && r.nextdate && daysUntil(r.nextdate) <= 3).length;
+}
+
+// ─── Navigation ───────────────────────────────────────────────
+let currentPage = 'dashboard';
+let currentMerchantFilter = null;
+
+function navigate(page) {
+  currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.toggle('active', el.dataset.page === page));
+  const titles = { dashboard:'概览仪表盘', record:'录入沟通记录', merchants:'商户列表', followup:'待跟进提醒', export:'导出数据' };
+  document.getElementById('page-title').textContent = titles[page];
+  const actions = document.getElementById('topbar-actions');
+  actions.innerHTML = '';
+  if (page === 'merchants' || page === 'dashboard') {
+    actions.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openNewRecord()">+ 新建沟通记录</button>`;
+  }
+  const uc = urgentCount();
+  document.getElementById('notif-dot').style.display = uc > 0 ? '' : 'none';
+  const pages = { dashboard: renderDashboard, record: renderRecord, merchants: renderMerchants, followup: renderFollowup, export: renderExport };
+  pages[page]();
+}
+
+// ─── Dashboard ────────────────────────────────────────────────
+function renderDashboard() {
+  const now = new Date();
+  const thisMonth = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+  const monthRecs = DB.records.filter(r => r.date.startsWith(thisMonth));
+  const urgent = DB.records.filter(r => !r.done && r.nextdate && daysUntil(r.nextdate) < 0);
+  const soon = DB.records.filter(r => !r.done && r.nextdate && daysUntil(r.nextdate) >= 0 && daysUntil(r.nextdate) <= 3);
+  const pending = DB.records.filter(r => !r.done && r.nextdate);
+  const merchants = getMerchants();
+
+  // Recent records
+  const recent = [...DB.records].sort((a,b) => b.date.localeCompare(a.date)).slice(0,6);
+
+  document.getElementById('content').innerHTML = `
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-num">${monthRecs.length}</div>
+        <div class="stat-label">本月沟通次数</div>
+        <div class="stat-sub">沟通记录</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--danger)">${urgent.length}</div>
+        <div class="stat-label">已逾期跟进</div>
+        <div class="stat-sub">需立即处理</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num" style="color:var(--warning)">${soon.length}</div>
+        <div class="stat-label">3日内需跟进</div>
+        <div class="stat-sub">即将到期</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-num">${merchants.length}</div>
+        <div class="stat-label">涉及商户数</div>
+        <div class="stat-sub">累计有沟通记录</div>
+      </div>
+    </div>
+
+    ${urgent.length > 0 ? `
+    <div class="card" style="margin-bottom:16px;border-left:3px solid var(--danger)">
+      <div class="card-header"><div class="card-title">⚠️ 逾期未跟进（${urgent.length}项）</div></div>
+      <div class="card-body" style="padding:0">
+        ${urgent.map(r => `
+          <div class="followup-item" style="padding:12px 16px">
+            <div class="followup-date-badge badge-urgent" style="background:var(--danger-bg)">
+              <div class="month" style="color:var(--danger)">${r.nextdate.slice(5,7)}月</div>
+              <div class="day" style="color:var(--danger)">${parseInt(r.nextdate.slice(8))}</div>
+            </div>
+            <div style="flex:1">
+              <div style="font-weight:600;font-size:13px">${r.merchant}</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px">${r.nexttask}</div>
+            </div>
+            <button class="btn btn-ghost btn-sm" onclick="markDone(${r.id})">标为完成</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>` : ''}
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">最近沟通记录</div>
+        <button class="btn btn-ghost btn-sm" onclick="navigate('merchants')">查看全部 →</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>日期</th><th>商户</th><th>沟通事项</th><th>结果摘要</th><th>跟进状态</th><th>操作</th>
+          </tr></thead>
+          <tbody>
+            ${recent.map(r => `<tr>
+              <td style="white-space:nowrap;color:var(--text2);font-size:12px">${r.date}</td>
+              <td><strong style="font-size:13px">${r.merchant}</strong></td>
+              <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${r.topic}</td>
+              <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text2)">${r.result||'—'}</td>
+              <td>${urgencyBadge(r.nextdate, r.done)}</td>
+              <td>
+                <button class="btn btn-ghost btn-sm" onclick="showMerchant('${r.merchant}')">详情</button>
+                ${r.minutes ? `<button class="btn btn-ghost btn-sm" style="color:var(--accent)" onclick="showMinutes(${r.id})">纪要</button>` : ''}
+              </td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Record Form ──────────────────────────────────────────────
+function renderRecord() {
+  document.getElementById('content').innerHTML = `
+    <div class="card" style="max-width:720px">
+      <div class="card-header"><div class="card-title">新建沟通记录</div></div>
+      <div class="card-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">沟通日期 *</label>
+            <input type="date" class="form-input" id="f-date" value="${today()}">
+          </div>
+          <div class="form-group">
+            <label class="form-label">商户名称 *</label>
+            <input type="text" class="form-input" id="f-merchant" placeholder="例：星巴克咖啡 B1-01" list="merchant-list-inline">
+            <datalist id="merchant-list-inline">${getMerchants().map(m=>`<option value="${m}">`).join('')}</datalist>
+          </div>
+          <div class="form-group">
+            <label class="form-label">联系人</label>
+            <input type="text" class="form-input" id="f-contact" placeholder="姓名 / 职务">
+          </div>
+          <div class="form-group">
+            <label class="form-label">沟通方式</label>
+            <select class="form-select" id="f-method">
+              <option>现场拜访</option><option>电话沟通</option><option>微信沟通</option><option>正式会议</option><option>邮件往来</option>
+            </select>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">沟通事项 *</label>
+            <textarea class="form-textarea" id="f-topic" placeholder="本次沟通的主要内容…" style="min-height:90px"></textarea>
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">沟通结果</label>
+            <textarea class="form-textarea" id="f-result" placeholder="达成共识、待定事项、商户态度…"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">下次跟进事项</label>
+            <input type="text" class="form-input" id="f-nexttask" placeholder="需要跟进的具体事项">
+          </div>
+          <div class="form-group">
+            <label class="form-label">跟进日期</label>
+            <input type="date" class="form-input" id="f-nextdate">
+          </div>
+          <div class="form-group form-full">
+            <label class="form-label">标签</label>
+            <div style="display:flex;gap:10px;flex-wrap:wrap" id="tag-selector-inline">
+              ${['续租谈判','投诉处理','活动合作','租金调整','装修装饰','运营巡查'].map(t =>
+                `<label style="display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer"><input type="checkbox" value="${t}"> ${t}</label>`
+              ).join('')}
+            </div>
+          </div>
+        </div>
+        <div class="ai-box" id="ai-box-inline" style="display:none">
+          <div class="ai-label">✨ AI 生成的正式沟通纪要</div>
+          <textarea class="form-textarea" id="ai-content-inline" style="min-height:200px;background:transparent;border:none;padding:0;font-size:13px;line-height:1.8;resize:none;outline:none;width:100%"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:flex-end">
+          <button class="btn btn-secondary" onclick="generateMinutesInline()">✨ 生成AI沟通纪要</button>
+          <button class="btn btn-primary" onclick="saveRecordInline()">💾 保存记录</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ─── Merchants ────────────────────────────────────────────────
+function renderMerchants() {
+  const merchants = getMerchants();
+  document.getElementById('content').innerHTML = `
+    <div class="search-row">
+      <div class="search-wrap">
+        <input type="text" class="search-input" id="merchant-search" placeholder="搜索商户名称…" oninput="filterMerchants(this.value)">
+      </div>
+    </div>
+    <div class="merchant-grid" id="merchant-grid">${renderMerchantCards(merchants)}</div>
+  `;
+}
+
+function renderMerchantCards(merchants) {
+  if (!merchants.length) return `<div class="empty"><div class="empty-icon">🏪</div><div class="empty-text">暂无商户记录</div><div class="empty-sub">新建第一条沟通记录后商户会自动出现</div></div>`;
+  return merchants.map(m => {
+    const recs = getRecordsByMerchant(m);
+    const latest = recs[0];
+    const pending = recs.filter(r => !r.done && r.nextdate);
+    const urgent = pending.filter(r => daysUntil(r.nextdate) <= 3);
+    return `
+      <div class="merchant-card" onclick="showMerchant('${m.replace(/'/g,"\\'")}')">
+        <div class="merchant-card-name">${m}</div>
+        <div class="merchant-card-meta">最近沟通：${latest ? latest.date : '—'} · 共${recs.length}次记录</div>
+        <div class="merchant-card-footer">
+          ${urgent.length > 0 ? `<span class="badge badge-urgent">⚠️ ${urgent.length}项待跟进</span>` : pending.length > 0 ? `<span class="badge badge-soon">🟡 ${pending.length}项跟进中</span>` : `<span class="badge badge-normal">✓ 无待跟进</span>`}
+          <span style="font-size:11px;color:var(--text3)">${recs.filter(r=>r.minutes).length}份纪要</span>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function filterMerchants(q) {
+  const filtered = getMerchants().filter(m => m.includes(q));
+  document.getElementById('merchant-grid').innerHTML = renderMerchantCards(filtered);
+}
+
+function showMerchant(name) {
+  const recs = getRecordsByMerchant(name);
+  document.getElementById('modal-merchant-title').textContent = `${name} — 沟通历史`;
+  document.getElementById('modal-merchant-body').innerHTML = `
+    <div class="page-tabs">
+      <div class="page-tab active" onclick="switchMerchantTab(this,'timeline')">沟通记录时间线</div>
+      <div class="page-tab" onclick="switchMerchantTab(this,'minutes-list')">正式纪要（${recs.filter(r=>r.minutes).length}份）</div>
+    </div>
+    <div id="merchant-timeline">
+      ${recs.length === 0 ? '<div class="empty"><div class="empty-icon">📝</div><div class="empty-text">暂无记录</div></div>' :
+        `<div class="timeline">${recs.map(r => `
+          <div class="timeline-item">
+            <div class="timeline-left">
+              <div class="timeline-dot ${r.done?'done':''}"></div>
+              <div class="timeline-line"></div>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-meta">
+                <span class="timeline-date">${fmtDate(r.date)}</span>
+                <span class="badge badge-blue">${r.method}</span>
+                ${r.tags.map(t=>`<span class="badge" style="background:var(--surface2);color:var(--text2)">${t}</span>`).join('')}
+                ${urgencyBadge(r.nextdate, r.done)}
+              </div>
+              <div class="timeline-field">
+                <div class="timeline-field-label">联系人</div>
+                <div class="timeline-field-value">${r.contact||'—'}</div>
+              </div>
+              <div class="timeline-field">
+                <div class="timeline-field-label">沟通事项</div>
+                <div class="timeline-field-value">${r.topic}</div>
+              </div>
+              ${r.result ? `<div class="timeline-field">
+                <div class="timeline-field-label">沟通结果</div>
+                <div class="timeline-field-value">${r.result}</div>
+              </div>` : ''}
+              ${r.nexttask ? `<div class="timeline-field">
+                <div class="timeline-field-label">下次跟进</div>
+                <div class="timeline-field-value">${r.nexttask}${r.nextdate ? `（${fmtDate(r.nextdate)}）` : ''}</div>
+              </div>` : ''}
+              <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap">
+                ${r.minutes ? `<button class="btn btn-ghost btn-sm" style="color:var(--accent)" onclick="showMinutes(${r.id})">查看正式纪要</button>` : ''}
+                ${!r.done && r.nextdate ? `<button class="btn btn-ghost btn-sm" onclick="markDone(${r.id});showMerchant('${name.replace(/'/g,"\\'")}')" style="color:var(--success)">✓ 标为已跟进</button>` : ''}
+              </div>
+            </div>
+          </div>`).join('')}
+        </div>`}
+    </div>
+    <div id="merchant-minutes-list" style="display:none">
+      ${recs.filter(r=>r.minutes).length === 0 ? '<div class="empty"><div class="empty-icon">📄</div><div class="empty-text">暂无正式纪要</div><div class="empty-sub">在沟通记录中生成AI纪要后会显示在这里</div></div>' :
+        recs.filter(r=>r.minutes).map(r => `
+          <div style="padding:12px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <div style="font-size:13px;font-weight:600">${fmtDate(r.date)} 沟通纪要</div>
+              <div style="font-size:12px;color:var(--text2);margin-top:2px">${r.method} · ${r.contact||'—'}</div>
+            </div>
+            <button class="btn btn-secondary btn-sm" onclick="showMinutes(${r.id})">查看 →</button>
+          </div>
+        `).join('')}
+    </div>
+  `;
+  currentMerchantFilter = name;
+  openModal('modal-merchant');
+}
+
+function switchMerchantTab(el, tab) {
+  document.querySelectorAll('#modal-merchant-body .page-tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('merchant-timeline').style.display = tab === 'timeline' ? '' : 'none';
+  document.getElementById('merchant-minutes-list').style.display = tab === 'minutes-list' ? '' : 'none';
+}
+
+// ─── Follow-up ────────────────────────────────────────────────
+function renderFollowup() {
+  const pending = DB.records
+    .filter(r => !r.done && r.nextdate)
+    .sort((a,b) => a.nextdate.localeCompare(b.nextdate));
+
+  const groups = { overdue:[], today:[], soon:[], later:[] };
+  pending.forEach(r => {
+    const d = daysUntil(r.nextdate);
+    if (d < 0) groups.overdue.push(r);
+    else if (d === 0) groups.today.push(r);
+    else if (d <= 3) groups.soon.push(r);
+    else groups.later.push(r);
+  });
+
+  function renderGroup(title, items, color) {
+    if (!items.length) return '';
+    return `
+      <div style="margin-bottom:20px">
+        <div class="section-title" style="color:${color||'var(--text2)'}">${title}（${items.length}）</div>
+        <div class="card">
+          <div class="card-body" style="padding:0 16px">
+            ${items.map(r => `
+              <div class="followup-item">
+                <div class="followup-date-badge" style="background:var(--surface2)">
+                  <div class="month" style="font-size:10px;font-weight:600;color:var(--text3)">${r.nextdate.slice(5,7)}月</div>
+                  <div class="day" style="font-size:20px;font-weight:700;color:var(--text)">${parseInt(r.nextdate.slice(8))}</div>
+                </div>
+                <div style="flex:1">
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+                    <span style="font-size:13px;font-weight:700">${r.merchant}</span>
+                    ${urgencyBadge(r.nextdate, r.done)}
+                  </div>
+                  <div style="font-size:13px;color:var(--text2);margin-top:4px">${r.nexttask}</div>
+                  <div style="font-size:11px;color:var(--text3);margin-top:2px">来源：${fmtDate(r.date)} ${r.method}</div>
+                </div>
+                <div style="display:flex;gap:6px">
+                  <button class="btn btn-ghost btn-sm" onclick="showMerchant('${r.merchant.replace(/'/g,"\\'")}')">详情</button>
+                  <button class="btn btn-ghost btn-sm" style="color:var(--success)" onclick="markDone(${r.id})">✓ 完成</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  const html = pending.length === 0
+    ? `<div class="empty"><div class="empty-icon">🎉</div><div class="empty-text">暂无待跟进事项</div><div class="empty-sub">所有跟进任务均已完成</div></div>`
+    : renderGroup('⚠️ 已逾期', groups.overdue, 'var(--danger)')
+      + renderGroup('🔴 今日到期', groups.today, 'var(--danger)')
+      + renderGroup('🟡 3日内到期', groups.soon, 'var(--warning)')
+      + renderGroup('🟢 未来待跟进', groups.later);
+
+  document.getElementById('content').innerHTML = html;
+}
+
+// ─── Export ───────────────────────────────────────────────────
+function renderExport() {
+  document.getElementById('content').innerHTML = `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:800px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 导出 Excel</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">导出所有沟通记录到Excel，包含完整字段，方便存档和汇报</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-secondary" onclick="exportExcel('all')">📋 导出全部记录</button>
+            <button class="btn btn-secondary" onclick="exportExcelByMerchant()">🏪 按商户导出</button>
+            <button class="btn btn-secondary" onclick="exportExcel('pending')">🔔 仅导出待跟进记录</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📄 导出纪要</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">导出正式沟通纪要文档，适合存档、抄送或打印</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-secondary" onclick="printAllMinutes()">🖨️ 打印/导出所有纪要</button>
+            <button class="btn btn-secondary" onclick="exportMinutesByMerchant()">🏪 按商户导出纪要</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">💾 数据备份</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:16px">将所有数据备份为文件，或从备份文件恢复数据</p>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <button class="btn btn-secondary" onclick="backupData()">⬇️ 备份全部数据</button>
+            <label class="btn btn-secondary" style="cursor:pointer;text-align:center">
+              ⬆️ 恢复数据
+              <input type="file" accept=".json" style="display:none" onchange="restoreData(this)">
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📈 月度报告</div></div>
+        <div class="card-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px">生成指定月份的沟通汇总报告</p>
+          <div class="form-group" style="margin-bottom:12px">
+            <input type="month" class="form-input" id="report-month" value="${today().slice(0,7)}">
+          </div>
+          <button class="btn btn-primary" onclick="generateMonthReport()">生成月度报告</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// Export functions
+function exportExcel(mode) {
+  let recs = DB.records;
+  if (mode === 'pending') recs = recs.filter(r => !r.done && r.nextdate);
+  const headers = ['序号','日期','商户名称','联系人','沟通方式','沟通事项','沟通结果','跟进事项','跟进日期','状态','标签'];
+  const rows = recs.map((r,i) => [i+1, r.date, r.merchant, r.contact, r.method, r.topic, r.result, r.nexttask, r.nextdate, r.done?'已完成':'待跟进', r.tags.join('/')]);
+  downloadCSV([headers, ...rows], `沟通记录_${today()}.csv`);
+}
+
+function exportExcelByMerchant() {
+  const name = prompt('请输入商户名称：');
+  if (!name) return;
+  const recs = getRecordsByMerchant(name);
+  if (!recs.length) { alert('未找到该商户的记录'); return; }
+  const headers = ['序号','日期','联系人','沟通方式','沟通事项','沟通结果','跟进事项','跟进日期','状态'];
+  const rows = recs.map((r,i) => [i+1, r.date, r.contact, r.method, r.topic, r.result, r.nexttask, r.nextdate, r.done?'已完成':'待跟进']);
+  downloadCSV([headers, ...rows], `${name}_沟通记录_${today()}.csv`);
+}
+
+function downloadCSV(rows, filename) {
+  const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+}
+
+function backupData() {
+  const json = JSON.stringify(DB, null, 2);
+  const blob = new Blob([json], {type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `商户沟通系统备份_${today()}.json`;
+  a.click();
+}
+
+function restoreData(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (confirm(`确认恢复数据？将覆盖当前${DB.records.length}条记录，导入${data.records.length}条记录。`)) {
+        DB = data;
+        saveDB();
+        navigate(currentPage);
+        alert('数据恢复成功！');
+      }
+    } catch { alert('文件格式错误，请使用系统导出的备份文件'); }
+  };
+  reader.readAsText(file);
+}
+
+function generateMonthReport() {
+  const month = document.getElementById('report-month').value;
+  const recs = DB.records.filter(r => r.date.startsWith(month));
+  const merchants = [...new Set(recs.map(r=>r.merchant))];
+  const html = `
+    <h2 style="font-family:'Noto Sans SC';margin-bottom:12px">商户沟通月度报告 — ${month}</h2>
+    <p>沟通总次数：${recs.length}次 | 涉及商户：${merchants.length}家</p>
+    <h3 style="margin:16px 0 8px;font-family:'Noto Sans SC'">各商户沟通频次</h3>
+    <table border="1" cellpadding="8" cellspacing="0" style="border-collapse:collapse;width:100%;font-family:'Noto Sans SC'">
+      <tr><th>商户名称</th><th>沟通次数</th><th>最近沟通</th></tr>
+      ${merchants.map(m => {
+        const mr = recs.filter(r=>r.merchant===m);
+        return `<tr><td>${m}</td><td>${mr.length}</td><td>${mr.sort((a,b)=>b.date.localeCompare(a.date))[0].date}</td></tr>`;
+      }).join('')}
+    </table>
+    <h3 style="margin:16px 0 8px;font-family:'Noto Sans SC'">待跟进未完成事项</h3>
+    ${DB.records.filter(r=>!r.done&&r.nextdate).map(r=>`<p style="font-family:'Noto Sans SC'">• ${r.merchant}：${r.nexttask}（${r.nextdate}）</p>`).join('')||'<p>无</p>'}
+  `;
+  const w = window.open('');
+  w.document.write(`<html><head><meta charset="UTF-8"><title>月度报告</title></head><body style="padding:32px;max-width:800px;margin:0 auto">${html}<br><button onclick="window.print()">打印</button></body></html>`);
+  w.document.close();
+}
+
+// ─── AI Minutes ───────────────────────────────────────────────
+let pendingMinutes = '';
+
+function getFormData(prefix) {
+  const sel = prefix === 'modal' ? '#modal-record ' : '#content ';
+  const get = id => document.getElementById(id);
+  return {
+    date: get('f-date')?.value || '',
+    merchant: get('f-merchant')?.value || '',
+    contact: get('f-contact')?.value || '',
+    method: get('f-method')?.value || '',
+    topic: get('f-topic')?.value || '',
+    result: get('f-result')?.value || '',
+    nexttask: get('f-nexttask')?.value || '',
+    nextdate: get('f-nextdate')?.value || '',
+    tags: [...document.querySelectorAll(`${prefix==='inline'?'#tag-selector-inline':'#tag-selector'} input:checked`)].map(i=>i.value)
+  };
+}
+
+async function callAI(prompt) {
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens:1000,
+      system:'你是一位专业的商场运营助理，负责将沟通信息整理成正式的书面沟通纪要。纪要要求：格式规范、措辞专业、适合存档和抄送给管理层。直接输出纪要内容，不要说任何前置语。',
+      messages:[{role:'user',content:prompt}]
+    })
+  });
+  const data = await res.json();
+  return data.content?.[0]?.text || '（生成失败，请检查网络连接）';
+}
+
+async function generateMinutesInline() {
+  const d = getFormData('inline');
+  if (!d.topic) { alert('请先填写沟通事项'); return; }
+  const box = document.getElementById('ai-box-inline');
+  const content = document.getElementById('ai-content-inline');
+  box.style.display = '';
+  content.value = '✨ AI正在生成正式沟通纪要…';
+  const prompt = `请根据以下沟通信息生成一份正式的沟通纪要：
+日期：${d.date}
+商户：${d.merchant}
+联系人：${d.contact}
+沟通方式：${d.method}
+沟通事项：${d.topic}
+沟通结果：${d.result}
+下次跟进事项：${d.nexttask}（${d.nextdate}）
+标签：${d.tags.join('、')||'无'}
+
+请生成包含以下部分的正式纪要：纪要标题、基本信息（时间/地点/参与方）、沟通要点（分条列述）、达成事项、后续安排。`;
+  try {
+    const text = await callAI(prompt);
+    content.value = text;
+    pendingMinutes = text;
+  } catch(e) {
+    content.value = '网络连接失败。您可以手动填写纪要内容。';
+  }
+}
+
+async function generateMinutes() {
+  const d = getFormData('modal');
+  if (!d.topic) { alert('请先填写沟通事项'); return; }
+  const box = document.getElementById('ai-box');
+  const content = document.getElementById('ai-content');
+  box.style.display = '';
+  content.textContent = '✨ AI正在生成正式沟通纪要…';
+  content.className = 'ai-content ai-loading';
+  const prompt = `请根据以下沟通信息生成一份正式的沟通纪要：
+日期：${d.date}
+商户：${d.merchant}
+联系人：${d.contact}
+沟通方式：${d.method}
+沟通事项：${d.topic}
+沟通结果：${d.result}
+下次跟进事项：${d.nexttask}（${d.nextdate}）
+标签：${d.tags.join('、')||'无'}`;
+  try {
+    const text = await callAI(prompt);
+    content.textContent = text;
+    content.className = 'ai-content';
+    pendingMinutes = text;
+    document.getElementById('ai-actions').style.display = 'flex';
+  } catch(e) {
+    content.textContent = '生成失败，请检查网络或手动填写。';
+    content.className = 'ai-content';
+  }
+}
+
+// ─── Save Record ──────────────────────────────────────────────
+function collectRecord(prefix) {
+  const d = getFormData(prefix);
+  if (!d.date || !d.merchant || !d.topic) { alert('请填写必填项：日期、商户名称、沟通事项'); return null; }
+  let minutes = '';
+  if (prefix === 'inline') {
+    const el = document.getElementById('ai-content-inline');
+    if (el && el.value && !el.value.startsWith('✨')) minutes = el.value;
+  } else {
+    minutes = pendingMinutes;
+  }
+  return { id: DB.nextId++, ...d, minutes, done: false, createdAt: Date.now() };
+}
+
+function saveRecordInline() {
+  const rec = collectRecord('inline');
+  if (!rec) return;
+  DB.records.push(rec);
+  saveDB();
+  updateMerchantList();
+  navigate('dashboard');
+  showToast('✅ 记录已保存');
+}
+
+function saveRecord() {
+  const rec = collectRecord('modal');
+  if (!rec) return;
+  DB.records.push(rec);
+  saveDB();
+  updateMerchantList();
+  closeModal('modal-record');
+  navigate(currentPage);
+  showToast('✅ 记录已保存');
+}
+
+function markDone(id) {
+  const r = DB.records.find(r=>r.id===id);
+  if (r) { r.done = true; saveDB(); navigate(currentPage); }
+}
+
+function updateMerchantList() {
+  const dl = document.getElementById('merchant-list');
+  if (dl) dl.innerHTML = getMerchants().map(m=>`<option value="${m}">`).join('');
+}
+
+// ─── Minutes ──────────────────────────────────────────────────
+function showMinutes(id) {
+  const r = DB.records.find(r=>r.id===id);
+  if (!r) return;
+  document.getElementById('modal-minutes-body').innerHTML = `
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:16px;margin-bottom:16px;font-size:12px;color:var(--text2);display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><strong>商户：</strong>${r.merchant}</div>
+      <div><strong>日期：</strong>${fmtDate(r.date)}</div>
+      <div><strong>联系人：</strong>${r.contact||'—'}</div>
+      <div><strong>沟通方式：</strong>${r.method}</div>
+    </div>
+    <div id="minutes-content" style="font-size:13px;line-height:2;white-space:pre-wrap;font-family:'Noto Sans SC'">${r.minutes}</div>
+  `;
+  openModal('modal-minutes');
+}
+
+function printMinutes() {
+  const content = document.getElementById('minutes-content')?.innerText || '';
+  const w = window.open('');
+  w.document.write(`<html><head><meta charset="UTF-8"><title>沟通纪要</title><style>body{font-family:'Noto Sans SC',sans-serif;padding:40px;max-width:700px;margin:0 auto;font-size:14px;line-height:2}@media print{button{display:none}}</style></head><body><pre style="white-space:pre-wrap;font-family:inherit">${content}</pre><br><button onclick="window.print()">打印</button></body></html>`);
+  w.document.close();
+}
+
+function printAllMinutes() {
+  const recs = DB.records.filter(r=>r.minutes);
+  if (!recs.length) { alert('暂无正式纪要记录'); return; }
+  const html = recs.map(r => `<div style="page-break-after:always;padding-bottom:40px"><h3>${r.merchant} — ${fmtDate(r.date)}</h3><pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:2">${r.minutes}</pre></div>`).join('');
+  const w = window.open('');
+  w.document.write(`<html><head><meta charset="UTF-8"><title>所有纪要</title><style>body{font-family:'Noto Sans SC',sans-serif;padding:32px}@media print{button{display:none}}</style></head><body>${html}<button onclick="window.print()">打印全部</button></body></html>`);
+  w.document.close();
+}
+
+function exportMinutesByMerchant() {
+  const name = prompt('请输入商户名称：');
+  if (!name) return;
+  const recs = getRecordsByMerchant(name).filter(r=>r.minutes);
+  if (!recs.length) { alert('该商户暂无正式纪要'); return; }
+  const html = recs.map(r=>`<div style="page-break-after:always"><h3>${name} — ${fmtDate(r.date)}</h3><pre style="white-space:pre-wrap;font-family:inherit">${r.minutes}</pre></div>`).join('');
+  const w = window.open('');
+  w.document.write(`<html><head><meta charset="UTF-8"><title>${name}纪要</title><style>body{font-family:'Noto Sans SC',sans-serif;padding:32px}@media print{button{display:none}}</style></head><body>${html}<button onclick="window.print()">打印</button></body></html>`);
+  w.document.close();
+}
+
+// ─── Modal helpers ────────────────────────────────────────────
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) {
+  document.getElementById(id).classList.remove('open');
+  pendingMinutes = '';
+}
+
+function openNewRecord() {
+  document.getElementById('modal-record-title').textContent = '新建沟通记录';
+  document.getElementById('f-date').value = today();
+  document.getElementById('f-merchant').value = '';
+  document.getElementById('f-contact').value = '';
+  document.getElementById('f-topic').value = '';
+  document.getElementById('f-result').value = '';
+  document.getElementById('f-nexttask').value = '';
+  document.getElementById('f-nextdate').value = '';
+  document.getElementById('ai-box').style.display = 'none';
+  document.querySelectorAll('#tag-selector input').forEach(c => c.checked = false);
+  updateMerchantList();
+  openModal('modal-record');
+}
+
+function newRecordForMerchant() {
+  closeModal('modal-merchant');
+  openNewRecord();
+  setTimeout(() => {
+    if (currentMerchantFilter) document.getElementById('f-merchant').value = currentMerchantFilter;
+  }, 50);
+}
+
+// ─── Toast ────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;z-index:200;box-shadow:var(--shadow-md);transition:opacity .3s';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 2500);
+}
+
+// ─── Init ─────────────────────────────────────────────────────
+navigate('dashboard');
+</script>
+</body>
+</html>

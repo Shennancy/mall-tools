@@ -1,0 +1,318 @@
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{padding:1.5rem 1rem}
+h1{font-size:20px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.sub{font-size:13px;color:var(--color-text-secondary);margin-bottom:1.25rem}
+.model-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.75rem}
+.model-card{border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);padding:10px 12px;cursor:pointer;background:var(--color-background-primary);transition:all 0.15s;position:relative}
+.model-card.active{border-color:var(--color-border-info);background:var(--color-background-info)}
+.model-card.active .mc-name{color:var(--color-text-info)}
+.model-card.active .mc-sub{color:var(--color-text-info);opacity:.7}
+.mc-row{display:flex;align-items:center;gap:7px;margin-bottom:3px}
+.mc-dot{width:8px;height:8px;border-radius:50%}
+.mc-name{font-size:13px;font-weight:500;color:var(--color-text-primary)}
+.mc-sub{font-size:11px;color:var(--color-text-tertiary)}
+.mc-key{margin-top:7px;display:none}
+.model-card.active .mc-key{display:block}
+.mc-key input{width:100%;font-size:12px;padding:5px 8px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);background:var(--color-background-primary);font-family:var(--font-sans);letter-spacing:0.04em}
+.key-status{font-size:11px;margin-top:4px;display:flex;align-items:center;gap:4px;color:var(--color-text-tertiary)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--color-text-tertiary);display:inline-block;flex-shrink:0}
+.dot.ok{background:#22c55e}.dot.err{background:#ef4444}
+.tip{font-size:12px;color:var(--color-text-tertiary);margin-bottom:1.25rem;display:flex;align-items:center;gap:4px}
+.divider{height:0.5px;background:var(--color-border-tertiary);margin:1.25rem 0}
+.section{margin-bottom:1.25rem}
+label.field{display:block;font-size:13px;color:var(--color-text-secondary);margin-bottom:6px;font-weight:500}
+input.field,textarea.field{width:100%;font-family:var(--font-sans);font-size:14px}
+textarea.field{resize:vertical;min-height:72px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.style-group{display:flex;gap:8px;flex-wrap:wrap}
+.style-btn{border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);padding:7px 16px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;transition:all 0.15s}
+.style-btn.active{background:var(--color-background-info);color:var(--color-text-info);border-color:var(--color-border-info)}
+.type-group{display:flex;gap:8px;flex-wrap:wrap}
+.type-cb{display:none}
+.type-lbl{border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);padding:6px 14px;border-radius:var(--border-radius-md);font-size:13px;cursor:pointer;transition:all 0.15s;display:flex;align-items:center;gap:5px;user-select:none}
+.type-cb:checked+.type-lbl{background:var(--color-background-success);color:var(--color-text-success);border-color:var(--color-border-success)}
+.gen-btn{width:100%;padding:11px;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:var(--border-radius-lg);font-size:15px;font-weight:500;cursor:pointer;color:var(--color-text-primary);margin-top:.5rem;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s}
+.gen-btn:hover{background:var(--color-background-secondary)}
+.gen-btn:disabled{opacity:0.45;cursor:not-allowed}
+.results{margin-top:1.5rem;display:flex;flex-direction:column;gap:1rem}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden}
+.card-head{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary)}
+.card-tag{font-size:12px;font-weight:500;color:var(--color-text-secondary);display:flex;align-items:center;gap:6px}
+.model-badge{font-size:11px;padding:2px 7px;border-radius:var(--border-radius-md);margin-left:4px}
+.copy-btn{border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);color:var(--color-text-secondary);padding:4px 10px;border-radius:var(--border-radius-md);font-size:12px;cursor:pointer;display:flex;align-items:center;gap:4px;transition:all 0.15s}
+.copy-btn:hover{background:var(--color-background-secondary);color:var(--color-text-primary)}
+.copy-btn.copied{color:var(--color-text-success);border-color:var(--color-border-success)}
+.card-body{padding:14px;font-size:14px;color:var(--color-text-primary);line-height:1.9;white-space:pre-wrap;min-height:60px}
+.loading-dots{display:inline-flex;gap:4px;align-items:center}
+.loading-dots span{width:6px;height:6px;border-radius:50%;background:var(--color-text-secondary);animation:dot 1.2s infinite}
+.loading-dots span:nth-child(2){animation-delay:.2s}
+.loading-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,80%,100%{opacity:.2}40%{opacity:1}}
+@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+.char-count{font-size:11px;color:var(--color-text-tertiary);text-align:right;margin-top:3px}
+</style>
+
+<div class="wrap">
+  <h2 class="sr-only">商场营销文案AI生成器（多模型版）</h2>
+  <h1>🏬 商场营销文案生成器</h1>
+  <p class="sub">支持多种 AI 模型 · 选择你已有的 API Key</p>
+
+  <div class="section">
+    <label class="field">选择 AI 模型</label>
+    <div class="model-bar">
+
+      <div class="model-card active" id="mc-claude" onclick="selectModel('claude')">
+        <div class="mc-row">
+          <span class="mc-dot" style="background:#D97706"></span>
+          <span class="mc-name">Claude（Anthropic）</span>
+        </div>
+        <div class="mc-sub">claude-sonnet-4 · 推荐</div>
+        <div class="mc-key">
+          <input id="key-claude" type="password" placeholder="sk-ant-api03-..." oninput="checkKey('claude')" autocomplete="off" />
+          <div class="key-status"><span class="dot" id="dot-claude"></span><span id="st-claude">未输入</span></div>
+        </div>
+      </div>
+
+      <div class="model-card" id="mc-openai" onclick="selectModel('openai')">
+        <div class="mc-row">
+          <span class="mc-dot" style="background:#10A37F"></span>
+          <span class="mc-name">ChatGPT（OpenAI）</span>
+        </div>
+        <div class="mc-sub">gpt-4o-mini</div>
+        <div class="mc-key">
+          <input id="key-openai" type="password" placeholder="sk-..." oninput="checkKey('openai')" autocomplete="off" />
+          <div class="key-status"><span class="dot" id="dot-openai"></span><span id="st-openai">未输入</span></div>
+        </div>
+      </div>
+
+      <div class="model-card" id="mc-deepseek" onclick="selectModel('deepseek')">
+        <div class="mc-row">
+          <span class="mc-dot" style="background:#4F6EF7"></span>
+          <span class="mc-name">DeepSeek</span>
+        </div>
+        <div class="mc-sub">deepseek-chat · 高性价比</div>
+        <div class="mc-key">
+          <input id="key-deepseek" type="password" placeholder="sk-..." oninput="checkKey('deepseek')" autocomplete="off" />
+          <div class="key-status"><span class="dot" id="dot-deepseek"></span><span id="st-deepseek">未输入</span></div>
+        </div>
+      </div>
+
+      <div class="model-card" id="mc-qwen" onclick="selectModel('qwen')">
+        <div class="mc-row">
+          <span class="mc-dot" style="background:#7C3AED"></span>
+          <span class="mc-name">通义千问（阿里云）</span>
+        </div>
+        <div class="mc-sub">qwen-plus · 中文优化</div>
+        <div class="mc-key">
+          <input id="key-qwen" type="password" placeholder="sk-..." oninput="checkKey('qwen')" autocomplete="off" />
+          <div class="key-status"><span class="dot" id="dot-qwen"></span><span id="st-qwen">未输入</span></div>
+        </div>
+      </div>
+
+    </div>
+    <p class="tip"><i class="ti ti-shield-lock" style="font-size:13px" aria-hidden="true"></i> Key 仅存于页面内存，关闭即清除，不会上传任何服务器</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="row2">
+    <div class="section">
+      <label class="field">活动名称</label>
+      <input class="field" id="actName" type="text" placeholder="例：618年中购物节" />
+    </div>
+    <div class="section">
+      <label class="field">折扣力度</label>
+      <input class="field" id="discount" type="text" placeholder="例：全场5折、满300减100" />
+    </div>
+  </div>
+
+  <div class="row2">
+    <div class="section">
+      <label class="field">活动时间</label>
+      <input class="field" id="actTime" type="text" placeholder="例：6月18日-6月20日" />
+    </div>
+    <div class="section">
+      <label class="field">参与品牌/商铺</label>
+      <input class="field" id="brands" type="text" placeholder="例：全场品牌" />
+    </div>
+  </div>
+
+  <div class="section">
+    <label class="field">活动亮点（选填）</label>
+    <textarea class="field" id="highlights" placeholder="例：免费停车、现场抽奖、儿童游乐区开放……"></textarea>
+    <div class="char-count" id="hc">0 / 200</div>
+  </div>
+
+  <div class="section">
+    <label class="field">文案风格</label>
+    <div class="style-group">
+      <button class="style-btn active" data-style="活泼热情">🎉 活泼热情</button>
+      <button class="style-btn" data-style="正式品质">📋 正式品质</button>
+      <button class="style-btn" data-style="促销冲击">🔥 促销冲击</button>
+      <button class="style-btn" data-style="温情文艺">🌸 温情文艺</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <label class="field">生成版本（可多选）</label>
+    <div class="type-group">
+      <input class="type-cb" type="checkbox" id="cb-wechat" checked>
+      <label class="type-lbl" for="cb-wechat"><i class="ti ti-brand-wechat" aria-hidden="true"></i> 微信推文</label>
+      <input class="type-cb" type="checkbox" id="cb-poster" checked>
+      <label class="type-lbl" for="cb-poster"><i class="ti ti-layout-board" aria-hidden="true"></i> 海报文案</label>
+      <input class="type-cb" type="checkbox" id="cb-broadcast" checked>
+      <label class="type-lbl" for="cb-broadcast"><i class="ti ti-broadcast" aria-hidden="true"></i> 广播稿</label>
+      <input class="type-cb" type="checkbox" id="cb-video" checked>
+      <label class="type-lbl" for="cb-video"><i class="ti ti-video" aria-hidden="true"></i> 短视频脚本</label>
+    </div>
+  </div>
+
+  <button class="gen-btn" id="genBtn" onclick="generate()">
+    <i class="ti ti-sparkles" aria-hidden="true"></i> 一键生成文案
+  </button>
+
+  <div class="results" id="results"></div>
+</div>
+
+<script>
+let curModel = 'claude';
+let selStyle = '活泼热情';
+
+const modelCfg = {
+  claude:   { name:'Claude',    badge:'Claude',    badgeColor:'#D97706', url:'https://api.anthropic.com/v1/messages',         model:'claude-sonnet-4-20250514', fmt:'anthropic' },
+  openai:   { name:'ChatGPT',   badge:'GPT-4o',    badgeColor:'#10A37F', url:'https://api.openai.com/v1/chat/completions',    model:'gpt-4o-mini',              fmt:'openai'    },
+  deepseek: { name:'DeepSeek',  badge:'DeepSeek',  badgeColor:'#4F6EF7', url:'https://api.deepseek.com/v1/chat/completions', model:'deepseek-chat',            fmt:'openai'    },
+  qwen:     { name:'通义千问', badge:'Qwen',       badgeColor:'#7C3AED', url:'https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions', model:'qwen-plus', fmt:'openai' },
+};
+
+function selectModel(m) {
+  curModel = m;
+  document.querySelectorAll('.model-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('mc-'+m).classList.add('active');
+}
+
+function checkKey(m) {
+  const v = document.getElementById('key-'+m).value.trim();
+  const dot = document.getElementById('dot-'+m);
+  const st  = document.getElementById('st-'+m);
+  if(!v){dot.className='dot';st.textContent='未输入';return;}
+  const ok = v.startsWith('sk-');
+  dot.className = 'dot '+(ok?'ok':'err');
+  st.textContent = ok ? '格式正确' : '格式有误';
+}
+
+document.querySelectorAll('.style-btn').forEach(b => {
+  b.onclick = () => {
+    document.querySelectorAll('.style-btn').forEach(x => x.classList.remove('active'));
+    b.classList.add('active'); selStyle = b.dataset.style;
+  };
+});
+
+const hlEl = document.getElementById('highlights');
+hlEl.oninput = () => {
+  document.getElementById('hc').textContent = Math.min(hlEl.value.length,200)+' / 200';
+  if(hlEl.value.length>200) hlEl.value=hlEl.value.slice(0,200);
+};
+
+const allTypes = [
+  {key:'wechat',   label:'微信推文',   icon:'ti-brand-wechat', color:'#07C160'},
+  {key:'poster',   label:'海报文案',   icon:'ti-layout-board', color:'#FF6B35'},
+  {key:'broadcast',label:'广播稿',    icon:'ti-broadcast',    color:'#6366F1'},
+  {key:'video',    label:'短视频脚本', icon:'ti-video',        color:'#F43F5E'},
+];
+
+const prompts = {
+  wechat:    (info,style)=>`你是专业商场营销文案策划师。根据以下活动信息，创作一篇微信公众号推文正文（不含标题），200-300字，风格"${style}"。直接输出正文，无需说明。\n\n${info}`,
+  poster:    (info,style)=>`你是专业商场营销文案策划师。根据以下活动信息，创作海报文案，包含：主标题（4-8字）、副标题（一句话）、3-5个卖点短句（每条15字内）、行动号召语。风格"${style}"。分行输出，无需说明。\n\n${info}`,
+  broadcast: (info,style)=>`你是专业商场营销文案策划师。根据以下活动信息，创作商场广播稿，120-150字，口语化，适合现场播报，风格"${style}"。直接输出广播稿，无需说明。\n\n${info}`,
+  video:     (info,style)=>`你是专业短视频脚本创作者。根据以下商场活动信息，创作一篇竖屏短视频脚本（适合抖音/视频号/小红书），时长约30-45秒。请按以下格式输出：\n\n【开场钩子】（0-3秒，抓眼球的第一句话）\n【场景描述】（画面内容）\n【旁白/口播】（分镜台词，自然口语化）\n【字幕贴片】（关键信息字幕建议）\n【结尾行动】（引导点赞/评论/到店）\n【推荐BGM风格】（一句话描述）\n\n风格"${style}"，直接输出脚本，无需说明。\n\n${info}`,
+};
+
+async function callAPI(apiKey, prompt) {
+  const cfg = modelCfg[curModel];
+  let headers = {'Content-Type':'application/json'};
+  let body;
+
+  if(cfg.fmt === 'anthropic') {
+    headers['x-api-key'] = apiKey;
+    headers['anthropic-version'] = '2023-06-01';
+    headers['anthropic-dangerous-direct-browser-access'] = 'true';
+    body = JSON.stringify({model:cfg.model, max_tokens:1000, messages:[{role:'user',content:prompt}]});
+  } else {
+    headers['Authorization'] = 'Bearer '+apiKey;
+    body = JSON.stringify({model:cfg.model, max_tokens:1000, messages:[{role:'user',content:prompt}]});
+  }
+
+  const resp = await fetch(cfg.url, {method:'POST', headers, body});
+  if(!resp.ok){const e=await resp.json().catch(()=>({}));throw new Error(e.error?.message||`HTTP ${resp.status}`);}
+  const data = await resp.json();
+
+  if(cfg.fmt === 'anthropic') return data.content?.map(i=>i.text||'').join('\n')||'';
+  return data.choices?.[0]?.message?.content || '';
+}
+
+async function generate() {
+  const apiKey = document.getElementById('key-'+curModel).value.trim();
+  const name   = document.getElementById('actName').value.trim();
+  const disc   = document.getElementById('discount').value.trim();
+  const time   = document.getElementById('actTime').value.trim();
+  const brand  = document.getElementById('brands').value.trim();
+  const hi     = document.getElementById('highlights').value.trim();
+
+  if(!apiKey){alert('请先输入 '+modelCfg[curModel].name+' 的 API Key');return;}
+  if(!name||!disc||!time){alert('请填写活动名称、折扣力度和活动时间');return;}
+
+  const selected = allTypes.filter(t=>document.getElementById('cb-'+t.key)?.checked);
+  if(!selected.length){alert('请至少选择一种生成版本');return;}
+
+  const info = `活动名称：${name}\n折扣力度：${disc}\n活动时间：${time}\n参与品牌：${brand||'全场品牌'}\n活动亮点：${hi||'无'}`;
+  const cfg  = modelCfg[curModel];
+
+  const btn = document.getElementById('genBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" aria-hidden="true" style="animation:spin 1s linear infinite;display:inline-block"></i> AI 生成中…';
+
+  const res = document.getElementById('results');
+  res.innerHTML = '';
+
+  selected.forEach(t => {
+    res.innerHTML += `
+      <div class="card" id="card-${t.key}">
+        <div class="card-head">
+          <span class="card-tag">
+            <i class="ti ${t.icon}" style="font-size:16px;color:${t.color}" aria-hidden="true"></i>${t.label}
+            <span class="model-badge" style="background:${cfg.badgeColor}22;color:${cfg.badgeColor}">${cfg.badge}</span>
+          </span>
+          <button class="copy-btn" id="copy-${t.key}" onclick="copyText('${t.key}')"><i class="ti ti-copy" aria-hidden="true"></i> 复制</button>
+        </div>
+        <div class="card-body" id="body-${t.key}"><div class="loading-dots"><span></span><span></span><span></span></div> 生成中…</div>
+      </div>`;
+  });
+
+  await Promise.all(selected.map(async t => {
+    try {
+      const text = await callAPI(apiKey, prompts[t.key](info, selStyle));
+      window['stored_'+t.key] = text;
+      document.getElementById('body-'+t.key).textContent = text;
+    } catch(e) {
+      document.getElementById('body-'+t.key).textContent = '⚠️ 生成失败：'+e.message;
+    }
+  }));
+
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-sparkles" aria-hidden="true"></i> 重新生成';
+}
+
+function copyText(key) {
+  const text = window['stored_'+key]||document.getElementById('body-'+key).textContent;
+  if(!text) return;
+  navigator.clipboard.writeText(text).then(()=>{
+    const b=document.getElementById('copy-'+key);
+    b.classList.add('copied');
+    b.innerHTML='<i class="ti ti-check" aria-hidden="true"></i> 已复制';
+    setTimeout(()=>{b.classList.remove('copied');b.innerHTML='<i class="ti ti-copy" aria-hidden="true"></i> 复制';},2000);
+  });
+}
+</script>
